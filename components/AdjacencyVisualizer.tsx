@@ -21,7 +21,7 @@ export default function AdjacencyVisualizer({
     [nodes, edges]
   )
 
-  const adjacencyMatrix = useMemo(
+  const adjacencyMatrixMap = useMemo(
     () => getAdjacencyMatrix(nodes, edges),
     [nodes, edges]
   )
@@ -30,6 +30,20 @@ export default function AdjacencyVisualizer({
     () => nodes.map(n => n.id).sort(),
     [nodes]
   )
+
+  // Convert adjacency matrix Map to 2D array for display
+  const adjacencyMatrix: number[][] = useMemo(() => {
+    const matrix: number[][] = sortedNodeIds.map(() => 
+      new Array(sortedNodeIds.length).fill(0)
+    )
+    sortedNodeIds.forEach((rowNodeId, rowIdx) => {
+      sortedNodeIds.forEach((colNodeId, colIdx) => {
+        const key = `${rowNodeId}-${colNodeId}`
+        matrix[rowIdx][colIdx] = adjacencyMatrixMap.get(key) || 0
+      })
+    })
+    return matrix
+  }, [sortedNodeIds, adjacencyMatrixMap])
 
   return (
     <div className="space-y-6">
