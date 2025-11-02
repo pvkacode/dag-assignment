@@ -202,6 +202,7 @@ export default function DataStructurePanel({
             <tbody>
               {sortedNodeIds.map((rowId, rowIdx) => {
                 const isCurrentRow = currentNode === rowId
+                const row: number[] = adjMatrix[rowIdx]!
                 return (
                   <tr key={rowId}>
                     <td
@@ -211,7 +212,7 @@ export default function DataStructurePanel({
                     >
                       {rowId}
                     </td>
-                    {(adjMatrix[rowIdx] as number[]).map((value, colIdx) => {
+                    {row.map((value, colIdx) => {
                       const isCurrentCol = currentNode === sortedNodeIds[colIdx]
                       const hasEdge = value === 1
                       return (

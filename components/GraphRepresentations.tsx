@@ -87,31 +87,34 @@ export default function GraphRepresentations({
           </div>
           
           {/* Matrix Rows */}
-          {sortedNodeIds.map((rowNode, rowIdx) => (
-            <motion.div
-              key={rowNode}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: rowIdx * 0.05 }}
-              className="flex gap-1 mb-1"
-            >
-              <div className="w-10 h-10 flex items-center justify-center text-purple-400 font-semibold text-xs">
-                {rowNode}
-              </div>
-              {(adjMatrix[rowIdx] as number[]).map((value, colIdx) => (
-                <div
-                  key={colIdx}
-                  className={`w-10 h-10 flex items-center justify-center rounded font-mono font-semibold transition-all duration-200 ${
-                    value === 1
-                      ? 'bg-gradient-to-r from-purple-500 to-violet-500 text-white shadow-glow'
-                      : 'bg-slate-700/30 text-slate-500 border border-slate-600/30'
-                  }`}
-                >
-                  {value}
+          {sortedNodeIds.map((rowNode, rowIdx) => {
+            const row: number[] = adjMatrix[rowIdx]!
+            return (
+              <motion.div
+                key={rowNode}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: rowIdx * 0.05 }}
+                className="flex gap-1 mb-1"
+              >
+                <div className="w-10 h-10 flex items-center justify-center text-purple-400 font-semibold text-xs">
+                  {rowNode}
                 </div>
-              ))}
-            </motion.div>
-          ))}
+                {row.map((value, colIdx) => (
+                  <div
+                    key={colIdx}
+                    className={`w-10 h-10 flex items-center justify-center rounded font-mono font-semibold transition-all duration-200 ${
+                      value === 1
+                        ? 'bg-gradient-to-r from-purple-500 to-violet-500 text-white shadow-glow'
+                        : 'bg-slate-700/30 text-slate-500 border border-slate-600/30'
+                    }`}
+                  >
+                    {value}
+                  </div>
+                ))}
+              </motion.div>
+            )
+          })}
         </div>
       </div>
     </div>
