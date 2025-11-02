@@ -115,12 +115,13 @@ export default function AdjacencyVisualizer({
             <tbody>
               {sortedNodeIds.map((nodeId, rowIdx) => {
                 const node = nodes.find(n => n.id === nodeId)
+                const row: number[] = adjacencyMatrix[rowIdx]!
                 return (
                   <tr key={nodeId}>
                     <td className="p-2 text-xs font-semibold text-slate-400 border border-slate-700/30">
                       {node?.data.label || nodeId}
                     </td>
-                    {adjacencyMatrix[rowIdx]!.map((value: number, colIdx: number) => (
+                    {row.map((value: number, colIdx: number) => (
                       <motion.td
                         key={colIdx}
                         initial={{ scale: 0.8, opacity: 0 }}
