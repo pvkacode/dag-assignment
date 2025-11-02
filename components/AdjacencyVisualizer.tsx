@@ -120,7 +120,7 @@ export default function AdjacencyVisualizer({
                     <td className="p-2 text-xs font-semibold text-slate-400 border border-slate-700/30">
                       {node?.data.label || nodeId}
                     </td>
-                    {(adjacencyMatrix[rowIdx] as number[]).map((value, colIdx) => (
+                    {adjacencyMatrix[rowIdx]!.map((value: number, colIdx: number) => (
                       <motion.td
                         key={colIdx}
                         initial={{ scale: 0.8, opacity: 0 }}
