@@ -34,12 +34,13 @@ export default function AdjacencyVisualizer({
   // Convert adjacency matrix Map to 2D array for display
   const adjacencyMatrix: number[][] = useMemo(() => {
     const matrix: number[][] = sortedNodeIds.map(() => 
-      new Array(sortedNodeIds.length).fill(0)
+      new Array<number>(sortedNodeIds.length).fill(0)
     )
     sortedNodeIds.forEach((rowNodeId, rowIdx) => {
       sortedNodeIds.forEach((colNodeId, colIdx) => {
         const key = `${rowNodeId}-${colNodeId}`
-        matrix[rowIdx][colIdx] = adjacencyMatrixMap.get(key) || 0
+        const value = adjacencyMatrixMap.get(key)
+        matrix[rowIdx]![colIdx] = value !== undefined ? value : 0
       })
     })
     return matrix
@@ -119,7 +120,7 @@ export default function AdjacencyVisualizer({
                     <td className="p-2 text-xs font-semibold text-slate-400 border border-slate-700/30">
                       {node?.data.label || nodeId}
                     </td>
-                    {adjacencyMatrix[rowIdx].map((value, colIdx) => (
+                    {(adjacencyMatrix[rowIdx] as number[]).map((value, colIdx) => (
                       <motion.td
                         key={colIdx}
                         initial={{ scale: 0.8, opacity: 0 }}

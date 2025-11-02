@@ -16,8 +16,20 @@ export default function GraphRepresentations({
   theme,
 }: GraphRepresentationsProps) {
   const adjList = getAdjacencyListRepr(nodes, edges)
-  const adjMatrix = getAdjacencyMatrix(nodes, edges)
+  const adjMatrixMap = getAdjacencyMatrix(nodes, edges)
   const sortedNodeIds = [...nodes.map(n => n.id)].sort()
+
+  // Convert adjacency matrix Map to 2D array for display
+  const adjMatrix: number[][] = sortedNodeIds.map(() => 
+    new Array<number>(sortedNodeIds.length).fill(0)
+  )
+  sortedNodeIds.forEach((rowNodeId, rowIdx) => {
+    sortedNodeIds.forEach((colNodeId, colIdx) => {
+      const key = `${rowNodeId}-${colNodeId}`
+      const value = adjMatrixMap.get(key)
+      adjMatrix[rowIdx]![colIdx] = value !== undefined ? value : 0
+    })
+  })
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -86,7 +98,7 @@ export default function GraphRepresentations({
               <div className="w-10 h-10 flex items-center justify-center text-purple-400 font-semibold text-xs">
                 {rowNode}
               </div>
-              {adjMatrix[rowIdx].map((value, colIdx) => (
+              {(adjMatrix[rowIdx] as number[]).map((value, colIdx) => (
                 <div
                   key={colIdx}
                   className={`w-10 h-10 flex items-center justify-center rounded font-mono font-semibold transition-all duration-200 ${

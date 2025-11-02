@@ -27,8 +27,20 @@ export default function DataStructurePanel({
 }: DataStructurePanelProps) {
   // Get adjacency list and matrix
   const adjList = getAdjacencyListRepr(nodes, edges)
-  const adjMatrix = getAdjacencyMatrix(nodes, edges)
+  const adjMatrixMap = getAdjacencyMatrix(nodes, edges)
   const sortedNodeIds = nodes.map(n => n.id).sort()
+
+  // Convert adjacency matrix Map to 2D array for display
+  const adjMatrix: number[][] = sortedNodeIds.map(() => 
+    new Array<number>(sortedNodeIds.length).fill(0)
+  )
+  sortedNodeIds.forEach((rowNodeId, rowIdx) => {
+    sortedNodeIds.forEach((colNodeId, colIdx) => {
+      const key = `${rowNodeId}-${colNodeId}`
+      const value = adjMatrixMap.get(key)
+      adjMatrix[rowIdx]![colIdx] = value !== undefined ? value : 0
+    })
+  })
 
   // Initialize visited array if not provided
   const visitedArray = visited || new Map(nodes.map(n => [n.id, 0]))
@@ -199,7 +211,7 @@ export default function DataStructurePanel({
                     >
                       {rowId}
                     </td>
-                    {adjMatrix[rowIdx]?.map((value, colIdx) => {
+                    {(adjMatrix[rowIdx] as number[]).map((value, colIdx) => {
                       const isCurrentCol = currentNode === sortedNodeIds[colIdx]
                       const hasEdge = value === 1
                       return (
