@@ -467,13 +467,14 @@ export function generateRandomDAG(
   const nodes: GraphNode[] = []
   const edges: GraphEdge[] = []
   
-  // Create nodes
+  // Create nodes with letter IDs (A, B, C, etc.)
   for (let i = 0; i < numNodes; i++) {
+    const nodeId = String.fromCharCode(65 + i) // A, B, C, D, etc.
     nodes.push({
-      id: `node-${i}`,
+      id: nodeId,
       type: 'default',
       position: { x: Math.random() * 800, y: Math.random() * 600 },
-      data: { label: String.fromCharCode(65 + i) },
+      data: { label: nodeId },
     })
   }
   
@@ -486,8 +487,8 @@ export function generateRandomDAG(
     const targetIndex = Math.floor(Math.random() * numNodes)
     
     if (sourceIndex < targetIndex) {
-      const sourceId = `node-${sourceIndex}`
-      const targetId = `node-${targetIndex}`
+      const sourceId = String.fromCharCode(65 + sourceIndex) // Convert to letter
+      const targetId = String.fromCharCode(65 + targetIndex) // Convert to letter
       
       // Check if edge already exists
       const edgeExists = edges.some(

@@ -26,9 +26,66 @@ export default function InputPanel({
   const { theme: currentTheme, toggleTheme } = useTheme()
   const [numNodes, setNumNodes] = useState(8)
   const [numEdges, setNumEdges] = useState(10)
+  const [numNodesInput, setNumNodesInput] = useState('8')
+  const [numEdgesInput, setNumEdgesInput] = useState('10')
+
+  const handleNodesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setNumNodesInput(value)
+    // Allow empty string for editing
+    if (value === '') {
+      return
+    }
+    const num = Number(value)
+    if (!isNaN(num) && num >= 3 && num <= 20) {
+      setNumNodes(num)
+    }
+  }
+
+  const handleNodesBlur = () => {
+    const num = Number(numNodesInput)
+    if (isNaN(num) || num < 3) {
+      setNumNodesInput('3')
+      setNumNodes(3)
+    } else if (num > 20) {
+      setNumNodesInput('20')
+      setNumNodes(20)
+    } else {
+      setNumNodesInput(String(numNodes))
+    }
+  }
+
+  const handleEdgesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setNumEdgesInput(value)
+    // Allow empty string for editing
+    if (value === '') {
+      return
+    }
+    const num = Number(value)
+    if (!isNaN(num) && num >= 1 && num <= 30) {
+      setNumEdges(num)
+    }
+  }
+
+  const handleEdgesBlur = () => {
+    const num = Number(numEdgesInput)
+    if (isNaN(num) || num < 1) {
+      setNumEdgesInput('1')
+      setNumEdges(1)
+    } else if (num > 30) {
+      setNumEdgesInput('30')
+      setNumEdges(30)
+    } else {
+      setNumEdgesInput(String(numEdges))
+    }
+  }
 
   const handleGenerateRandom = () => {
-    onGenerateRandom(numNodes, numEdges)
+    // Ensure values are valid before generating
+    const validNodes = Math.min(20, Math.max(3, numNodes))
+    const validEdges = Math.min(30, Math.max(1, numEdges))
+    onGenerateRandom(validNodes, validEdges)
   }
 
   const handleLoadSample = () => {
@@ -72,8 +129,9 @@ export default function InputPanel({
               type="number"
               min="3"
               max="20"
-              value={numNodes}
-              onChange={(e) => setNumNodes(Math.min(20, Math.max(3, Number(e.target.value))))}
+              value={numNodesInput}
+              onChange={handleNodesChange}
+              onBlur={handleNodesBlur}
               className="w-full px-4 py-2.5 rounded-xl bg-slate-800/60 text-white border border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200"
             />
           </div>
@@ -85,8 +143,9 @@ export default function InputPanel({
               type="number"
               min="1"
               max="30"
-              value={numEdges}
-              onChange={(e) => setNumEdges(Math.min(30, Math.max(1, Number(e.target.value))))}
+              value={numEdgesInput}
+              onChange={handleEdgesChange}
+              onBlur={handleEdgesBlur}
               className="w-full px-4 py-2.5 rounded-xl bg-slate-800/60 text-white border border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 transition-all duration-200"
             />
           </div>
