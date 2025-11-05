@@ -98,44 +98,74 @@ export default function GraphCanvas({
     const removedNode = detailedStep ? detailedStep.removedNode : (simpleStep ? simpleStep.removedNode : '')
     if (!removedNode) return
 
-    // Highlight the removed node
+    // Update all nodes based on visited state
     setDisplayNodes((currentNodes) => {
-      const updatedNodes = currentNodes.map(node => {
-        if (node.id === removedNode) {
+      return currentNodes.map(node => {
+        const isRemoved = node.id === removedNode
+        const isVisited = detailedStep 
+          ? detailedStep.visited.get(node.id) === 1 
+          : (simpleStep && !simpleStep.remainingNodes.includes(node.id))
+        
+        if (isRemoved) {
+          // Currently being removed - red highlight
           return {
             ...node,
             style: {
               ...node.style,
               background: '#f87171',
               border: '3px solid #dc2626',
+              boxShadow: '0 0 20px rgba(248, 113, 113, 0.6)',
+              transition: 'all 0.5s ease',
+              transform: 'scale(1.1)',
+            },
+          }
+        } else if (isVisited) {
+          // Already removed - faded gray
+          return {
+            ...node,
+            style: {
+              ...node.style,
+              background: '#94a3b8',
+              border: '2px solid #64748b',
+              opacity: 0.3,
+              transition: 'all 0.5s ease',
+            },
+          }
+        } else {
+          // Not yet removed - default style
+          return {
+            ...node,
+            style: {
+              ...node.style,
+              background: 'linear-gradient(135deg, #8b5cf6, #a855f7)',
+              border: '2px solid rgba(255, 255, 255, 0.2)',
+              opacity: 1,
               transition: 'all 0.5s ease',
             },
           }
         }
-        return node
       })
-
-      // After a brief moment, fade out the removed node
-      setTimeout(() => {
-        setDisplayNodes((fadeNodes) => {
-          return fadeNodes.map(node => {
-            if (node.id === removedNode) {
-              return {
-                ...node,
-                style: {
-                  ...node.style,
-                  opacity: 0.3,
-                  background: '#94a3b8',
-                },
-              }
-            }
-            return node
-          })
-        })
-      }, speed * 5)
-
-      return updatedNodes
     })
+
+    // After a delay, fade out the removed node
+    setTimeout(() => {
+      setDisplayNodes((fadeNodes) => {
+        return fadeNodes.map(node => {
+          if (node.id === removedNode) {
+            return {
+              ...node,
+              style: {
+                ...node.style,
+                opacity: 0.3,
+                background: '#94a3b8',
+                transform: 'scale(1)',
+              },
+            }
+          }
+          return node
+        })
+      })
+    }, speed * 5)
     
     // Update data structures - always use detailed steps if available
     if (topologicalDetailedSteps[stepIndex]) {
@@ -160,31 +190,60 @@ export default function GraphCanvas({
     const step = dfsDetailedSteps[stepIndex]
     if (!step) return
 
-    // Update visited nodes set for visual highlighting
-    setVisitedNodes((prev) => {
-      const updatedVisited = new Set(prev)
-      if (step.visited.get(step.currentNode) === 1) {
-        updatedVisited.add(step.currentNode)
+    // Update visited nodes set
+    const updatedVisited = new Set<string>()
+    step.visited.forEach((value, nodeId) => {
+      if (value === 1) {
+        updatedVisited.add(nodeId)
       }
-      
-      setDisplayNodes((currentNodes) => {
-        return currentNodes.map(node => {
-          if (step.visited.get(node.id) === 1) {
-            return {
-              ...node,
-              style: {
-                ...node.style,
-                background: '#60a5fa',
-                border: '3px solid #3b82f6',
-                transition: 'all 0.5s ease',
-              },
-            }
+    })
+    setVisitedNodes(updatedVisited)
+    
+    // Update display nodes - highlight current node distinctly, visited nodes differently
+    setDisplayNodes((currentNodes) => {
+      return currentNodes.map(node => {
+        const isCurrent = node.id === step.currentNode
+        const isVisited = step.visited.get(node.id) === 1
+        
+        if (isCurrent) {
+          // Current node being processed - bright blue highlight
+          return {
+            ...node,
+            style: {
+              ...node.style,
+              background: '#3b82f6',
+              border: '3px solid #1d4ed8',
+              boxShadow: '0 0 20px rgba(59, 130, 246, 0.6)',
+              transition: 'all 0.5s ease',
+              transform: 'scale(1.1)',
+            },
           }
-          return node
-        })
+        } else if (isVisited) {
+          // Previously visited nodes - lighter blue
+          return {
+            ...node,
+            style: {
+              ...node.style,
+              background: '#60a5fa',
+              border: '2px solid #3b82f6',
+              opacity: 0.8,
+              transition: 'all 0.5s ease',
+            },
+          }
+        } else {
+          // Unvisited nodes - default style
+          return {
+            ...node,
+            style: {
+              ...node.style,
+              background: 'linear-gradient(135deg, #8b5cf6, #a855f7)',
+              border: '2px solid rgba(255, 255, 255, 0.2)',
+              opacity: 1,
+              transition: 'all 0.5s ease',
+            },
+          }
+        }
       })
-      
-      return updatedVisited
     })
     
     // Update data structures (visited array, stack)
