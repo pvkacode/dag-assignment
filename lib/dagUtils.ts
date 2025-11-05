@@ -506,6 +506,7 @@ export function generateRandomDAG(
             target: targetId,
             type: 'smoothstep',
             animated: false,
+            markerEnd: { type: 'arrowclosed' },
           })
           edgeCount++
         }
@@ -529,11 +530,11 @@ export function createSampleDAG(): { nodes: GraphNode[]; edges: GraphEdge[] } {
   ]
   
   const edges = [
-    { id: 'e1', source: 'A', target: 'B', type: 'smoothstep', animated: false },
-    { id: 'e2', source: 'A', target: 'C', type: 'smoothstep', animated: false },
-    { id: 'e3', source: 'B', target: 'D', type: 'smoothstep', animated: false },
-    { id: 'e4', source: 'C', target: 'D', type: 'smoothstep', animated: false },
-    { id: 'e5', source: 'D', target: 'E', type: 'smoothstep', animated: false },
+    { id: 'e1', source: 'A', target: 'B', type: 'smoothstep', animated: false, markerEnd: { type: 'arrowclosed' } },
+    { id: 'e2', source: 'A', target: 'C', type: 'smoothstep', animated: false, markerEnd: { type: 'arrowclosed' } },
+    { id: 'e3', source: 'B', target: 'D', type: 'smoothstep', animated: false, markerEnd: { type: 'arrowclosed' } },
+    { id: 'e4', source: 'C', target: 'D', type: 'smoothstep', animated: false, markerEnd: { type: 'arrowclosed' } },
+    { id: 'e5', source: 'D', target: 'E', type: 'smoothstep', animated: false, markerEnd: { type: 'arrowclosed' } },
   ]
   
   return { nodes, edges }

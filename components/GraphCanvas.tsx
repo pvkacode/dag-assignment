@@ -63,7 +63,12 @@ export default function GraphCanvas({
   }))
   
   const [displayNodes, setDisplayNodes] = useState<GraphNode[]>(nodesWithStyles)
-  const [displayEdges, setDisplayEdges] = useState<GraphEdge[]>(edges)
+  const [displayEdges, setDisplayEdges] = useState<GraphEdge[]>(() => {
+    return edges.map(edge => ({
+      ...edge,
+      markerEnd: edge.markerEnd || { type: MarkerType.ArrowClosed },
+    }))
+  })
   const [topologicalSteps, setTopologicalSteps] = useState<Array<{ removedNode: string; remainingNodes: string[] }>>([])
   const [topologicalDetailedSteps, setTopologicalDetailedSteps] = useState<Array<{ 
     removedNode: string
@@ -244,6 +249,14 @@ export default function GraphCanvas({
     }))
   }, [])
 
+  // Helper function to ensure all edges have arrows
+  const ensureEdgesHaveArrows = useCallback((edgeList: GraphEdge[]): GraphEdge[] => {
+    return edgeList.map(edge => ({
+      ...edge,
+      markerEnd: edge.markerEnd || { type: MarkerType.ArrowClosed },
+    }))
+  }, [])
+
   // Recalculate steps when graph changes or mode changes
   useEffect(() => {
     const visitedMap = initializeVisitedMap()
@@ -256,7 +269,7 @@ export default function GraphCanvas({
       setTopologicalDetailedSteps(detailedSteps)
       setCurrentAnimationStep(0)
       setDisplayNodes(styledNodes)
-      setDisplayEdges(edges)
+      setDisplayEdges(ensureEdgesHaveArrows(edges))
       setVisitedNodes(new Set())
       // Initialize with first step's queue if available
       const initialQueue = detailedSteps.length > 0 ? detailedSteps[0].queue : []
@@ -266,7 +279,7 @@ export default function GraphCanvas({
       setDfsDetailedSteps(detailedSteps)
       setCurrentAnimationStep(0)
       setDisplayNodes(styledNodes)
-      setDisplayEdges(edges)
+      setDisplayEdges(ensureEdgesHaveArrows(edges))
       setVisitedNodes(new Set())
       onDataStructureUpdate?.(visitedMap, undefined, [])
     } else if (mode === 'bfs') {
@@ -274,7 +287,7 @@ export default function GraphCanvas({
       setBfsDetailedSteps(detailedSteps)
       setCurrentAnimationStep(0)
       setDisplayNodes(styledNodes)
-      setDisplayEdges(edges)
+      setDisplayEdges(ensureEdgesHaveArrows(edges))
       setVisitedNodes(new Set())
       // Initialize with first step's queue if available
       const initialQueue = detailedSteps.length > 0 ? detailedSteps[0].queue : []
@@ -297,7 +310,7 @@ export default function GraphCanvas({
           setCurrentAnimationStep(0)
           const styledNodes = createStyledNodes(nodes)
           setDisplayNodes(styledNodes)
-          setDisplayEdges(edges)
+          setDisplayEdges(ensureEdgesHaveArrows(edges))
           setVisitedNodes(new Set())
           const visitedMap = initializeVisitedMap()
           const initialQueue = topologicalDetailedSteps.length > 0 ? topologicalDetailedSteps[0].queue : []
@@ -312,7 +325,7 @@ export default function GraphCanvas({
           setCurrentAnimationStep(0)
           const styledNodes = createStyledNodes(nodes)
           setDisplayNodes(styledNodes)
-          setDisplayEdges(edges)
+          setDisplayEdges(ensureEdgesHaveArrows(edges))
           setVisitedNodes(new Set())
           const visitedMap = initializeVisitedMap()
           onDataStructureUpdate?.(visitedMap, undefined, [])
@@ -326,7 +339,7 @@ export default function GraphCanvas({
           setCurrentAnimationStep(0)
           const styledNodes = createStyledNodes(nodes)
           setDisplayNodes(styledNodes)
-          setDisplayEdges(edges)
+          setDisplayEdges(ensureEdgesHaveArrows(edges))
           setVisitedNodes(new Set())
           const visitedMap = initializeVisitedMap()
           const initialQueue = bfsDetailedSteps.length > 0 ? bfsDetailedSteps[0].queue : []
@@ -361,7 +374,7 @@ export default function GraphCanvas({
   const handleReset = useCallback(() => {
     const styledNodes = createStyledNodes(nodes)
     setDisplayNodes(styledNodes)
-    setDisplayEdges(edges)
+    setDisplayEdges(ensureEdgesHaveArrows(edges))
     setCurrentAnimationStep(0)
     setVisitedNodes(new Set())
     const visitedMap = initializeVisitedMap()
@@ -376,7 +389,7 @@ export default function GraphCanvas({
     } else {
       onDataStructureUpdate?.(visitedMap, undefined, undefined)
     }
-  }, [nodes, edges, mode, initializeVisitedMap, onDataStructureUpdate, createStyledNodes, topologicalDetailedSteps, bfsDetailedSteps])
+  }, [nodes, edges, mode, initializeVisitedMap, onDataStructureUpdate, createStyledNodes, topologicalDetailedSteps, bfsDetailedSteps, ensureEdgesHaveArrows])
 
   // Reset when animation state changes to idle, but only if it was previously running/paused
   // Skip on initial mount to avoid conflicts with the initialization useEffect
@@ -427,11 +440,11 @@ export default function GraphCanvas({
         animated: false,
         markerEnd: { type: MarkerType.ArrowClosed },
       }
-      const updatedEdges = [...displayEdges, newEdge]
+      const updatedEdges = ensureEdgesHaveArrows([...displayEdges, newEdge])
       setDisplayEdges(updatedEdges)
       onGraphUpdate(displayNodes, updatedEdges)
     },
-    [displayEdges, displayNodes, onGraphUpdate]
+    [displayEdges, displayNodes, onGraphUpdate, ensureEdgesHaveArrows]
   )
 
   return (
