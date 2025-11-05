@@ -144,6 +144,30 @@ export default function DagVisualizer() {
             className="lg:col-span-3"
           >
             <div className="rounded-2xl shadow-2xl p-8 bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 space-y-6">
+              {/* Controls Panel - Moved to top */}
+              <ControlsPanel
+                mode={mode}
+                animationState={animationState}
+                currentStep={currentStep}
+                speed={speed}
+                onModeChange={setMode}
+                onStateChange={setAnimationState}
+                onStepChange={setCurrentStep}
+                onSpeedChange={setSpeed}
+                onReset={() => {
+                  setCurrentStep(0)
+                  setAnimationState('idle')
+                  const initialVisited = initializeVisitedMap()
+                  setVisited(initialVisited)
+                  setQueue([])
+                  setStack([])
+                  setCurrentNode(undefined)
+                }}
+                nodes={nodes}
+                edges={edges}
+                theme={theme}
+              />
+
               <GraphCanvas
                 nodes={nodes}
                 edges={edges}
@@ -166,30 +190,6 @@ export default function DagVisualizer() {
                 stack={mode === 'dfs' ? stack : undefined}
                 currentNode={currentNode}
                 mode={mode}
-                theme={theme}
-              />
-
-              {/* Controls Panel */}
-              <ControlsPanel
-                mode={mode}
-                animationState={animationState}
-                currentStep={currentStep}
-                speed={speed}
-                onModeChange={setMode}
-                onStateChange={setAnimationState}
-                onStepChange={setCurrentStep}
-                onSpeedChange={setSpeed}
-                onReset={() => {
-                  setCurrentStep(0)
-                  setAnimationState('idle')
-                  const initialVisited = initializeVisitedMap()
-                  setVisited(initialVisited)
-                  setQueue([])
-                  setStack([])
-                  setCurrentNode(undefined)
-                }}
-                nodes={nodes}
-                edges={edges}
                 theme={theme}
               />
             </div>

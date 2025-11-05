@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import type { AnimationMode, AnimationState } from './DagVisualizer'
 import type { GraphNode, GraphEdge } from '@/lib/dagUtils'
-import { topologicalSortStepsDetailed, dfsStepsDetailed, bfsStepsDetailed } from '@/lib/dagUtils'
+import { topologicalSortStepsDetailed, dfsStepsDetailed } from '@/lib/dagUtils'
 
 interface ControlsPanelProps {
   mode: AnimationMode
@@ -36,12 +36,9 @@ export default function ControlsPanel({
 }: ControlsPanelProps) {
   const topologicalStepCount = nodes.length > 0 ? topologicalSortStepsDetailed(nodes, edges).length : 0
   const dfsStepCount = nodes.length > 0 ? dfsStepsDetailed(nodes, edges).length : 0
-  const bfsStepCount = nodes.length > 0 ? bfsStepsDetailed(nodes, edges).length : 0
   const maxSteps = mode === 'topological' 
     ? topologicalStepCount 
-    : mode === 'dfs' 
-    ? dfsStepCount 
-    : bfsStepCount
+    : dfsStepCount
 
   const handlePlayPause = () => {
     if (animationState === 'running') {
@@ -62,7 +59,7 @@ export default function ControlsPanel({
   const activeButtonClass = `px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-glow border border-purple-400/30`
 
   return (
-    <div className="mt-8 p-6 rounded-2xl bg-slate-800/30 backdrop-blur-sm border border-slate-700/50">
+    <div className="p-6 rounded-2xl bg-slate-800/30 backdrop-blur-sm border border-slate-700/50">
       {/* Mode Selection */}
       <div className="mb-6">
         <label className="block text-sm font-semibold mb-3 text-slate-200">
@@ -80,12 +77,6 @@ export default function ControlsPanel({
             className={mode === 'dfs' ? activeButtonClass : buttonClass}
           >
             DFS Traversal
-          </button>
-          <button
-            onClick={() => onModeChange('bfs')}
-            className={mode === 'bfs' ? activeButtonClass : buttonClass}
-          >
-            BFS Traversal
           </button>
         </div>
       </div>
