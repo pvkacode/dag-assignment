@@ -28,6 +28,7 @@ export default function DagVisualizer() {
   const [queue, setQueue] = useState<string[]>([])
   const [stack, setStack] = useState<string[]>([])
   const [currentNode, setCurrentNode] = useState<string | undefined>()
+  const [dfsStartNode, setDfsStartNode] = useState<string | undefined>()
 
   // Generate random DAG
   const handleGenerateRandom = useCallback((numNodes: number, numEdges: number) => {
@@ -51,13 +52,21 @@ export default function DagVisualizer() {
     const { nodes: sampleNodes, edges: sampleEdges } = createSampleDAG()
     setNodes(sampleNodes)
     setEdges(sampleEdges)
+    // Initialize DFS start node with first node
+    if (sampleNodes.length > 0 && !dfsStartNode) {
+      setDfsStartNode(sampleNodes[0].id)
+    }
   }, [])
 
-  // Initialize visited map when nodes change
+  // Initialize visited map and DFS start node when nodes change
   useEffect(() => {
     if (nodes.length > 0) {
       const initialVisited = initializeVisitedMap()
       setVisited(initialVisited)
+      // Initialize DFS start node if not set or if current node is not in graph
+      if (!dfsStartNode || !nodes.find(n => n.id === dfsStartNode)) {
+        setDfsStartNode(nodes[0].id)
+      }
     }
   }, [nodes, initializeVisitedMap])
 
@@ -165,6 +174,12 @@ export default function DagVisualizer() {
                 }}
                 nodes={nodes}
                 edges={edges}
+                dfsStartNode={dfsStartNode}
+                onDfsStartNodeChange={(nodeId) => {
+                  setDfsStartNode(nodeId)
+                  setCurrentStep(0)
+                  setAnimationState('idle')
+                }}
                 theme={theme}
               />
 
@@ -178,6 +193,8 @@ export default function DagVisualizer() {
                 onGraphUpdate={handleGraphUpdate}
                 onError={setError}
                 onDataStructureUpdate={handleDataStructureUpdate}
+                onAnimationStepChange={setCurrentStep}
+                dfsStartNode={dfsStartNode}
                 theme={theme}
               />
 

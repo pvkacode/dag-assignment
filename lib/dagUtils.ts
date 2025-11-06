@@ -168,7 +168,8 @@ export function topologicalSortStepsDetailed(
   queue: string[]
   visited: Map<string, number>
 }> {
-  const adjList = buildReverseAdjacencyList(edges)
+  // Use FORWARD adjacency list to find outgoing neighbors (nodes that have incoming edges FROM removed node)
+  const forwardAdjList = buildAdjacencyList(edges)
   let inDegrees = calculateInDegrees(nodes, edges)
   const visited = new Map<string, number>()
   const steps: Array<{ 
@@ -183,33 +184,32 @@ export function topologicalSortStepsDetailed(
   const remaining = new Set(nodes.map(n => n.id))
   
   while (remaining.size > 0) {
-    // Find all nodes with in-degree 0
-    const zeroInDegreeNodes: string[] = []
+    // Find all nodes with in-degree 0 (current queue)
+    const currentQueue: string[] = []
     for (const nodeId of remaining) {
       if ((inDegrees.get(nodeId) || 0) === 0) {
-        zeroInDegreeNodes.push(nodeId)
+        currentQueue.push(nodeId)
       }
     }
     
     // If no nodes with in-degree 0, the graph has cycles
-    if (zeroInDegreeNodes.length === 0) {
+    if (currentQueue.length === 0) {
       break
     }
     
     // Remove the first node with in-degree 0
-    const removedNode = zeroInDegreeNodes[0]
+    const removedNode = currentQueue[0]
     remaining.delete(removedNode)
     visited.set(removedNode, 1)
     
-    // Update in-degrees of neighbors
-    const neighbors = adjList.get(removedNode) || []
-    for (const neighbor of neighbors) {
-      const currentInDegree = inDegrees.get(neighbor) || 0
-      inDegrees.set(neighbor, currentInDegree - 1)
-      
-      // Check if neighbor now has in-degree 0
-      if (currentInDegree === 1 && remaining.has(neighbor)) {
-        // This neighbor will be available in the next iteration
+    // Update in-degrees of neighbors (nodes that have incoming edges FROM removed node)
+    // Use forward adjacency list: if A→B, then when removing A, we need to decrease B's in-degree
+    const outgoingNeighbors = forwardAdjList.get(removedNode) || []
+    for (const neighbor of outgoingNeighbors) {
+      // Only update if neighbor is still remaining
+      if (remaining.has(neighbor)) {
+        const currentInDegree = inDegrees.get(neighbor) || 0
+        inDegrees.set(neighbor, currentInDegree - 1)
       }
     }
     
@@ -221,9 +221,10 @@ export function topologicalSortStepsDetailed(
       }
     }
     
+    // Store step with the current queue (before removal) and updated visited state
     steps.push({
       removedNode,
-      queue: nextQueue,
+      queue: currentQueue, // Show the queue that contains the node being removed
       visited: new Map(visited),
     })
   }
@@ -238,7 +239,8 @@ export function topologicalSortSteps(
   nodes: GraphNode[],
   edges: GraphEdge[]
 ): Array<{ removedNode: string; remainingNodes: string[] }> {
-  const adjList = buildReverseAdjacencyList(edges)
+  // Use FORWARD adjacency list to find outgoing neighbors
+  const forwardAdjList = buildAdjacencyList(edges)
   let inDegrees = calculateInDegrees(nodes, edges)
   const steps: Array<{ removedNode: string; remainingNodes: string[] }> = []
   
@@ -262,11 +264,14 @@ export function topologicalSortSteps(
     const removedNode = zeroInDegreeNodes[0]
     remaining.delete(removedNode)
     
-    // Update in-degrees of neighbors
-    const neighbors = adjList.get(removedNode) || []
-    for (const neighbor of neighbors) {
-      const currentInDegree = inDegrees.get(neighbor) || 0
-      inDegrees.set(neighbor, currentInDegree - 1)
+    // Update in-degrees of neighbors (nodes that have incoming edges FROM removed node)
+    const outgoingNeighbors = forwardAdjList.get(removedNode) || []
+    for (const neighbor of outgoingNeighbors) {
+      // Only update if neighbor is still remaining
+      if (remaining.has(neighbor)) {
+        const currentInDegree = inDegrees.get(neighbor) || 0
+        inDegrees.set(neighbor, currentInDegree - 1)
+      }
     }
     
     steps.push({

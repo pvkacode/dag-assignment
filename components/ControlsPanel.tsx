@@ -17,6 +17,8 @@ interface ControlsPanelProps {
   onReset: () => void
   nodes: GraphNode[]
   edges: GraphEdge[]
+  dfsStartNode?: string
+  onDfsStartNodeChange?: (nodeId: string) => void
   theme: 'light' | 'dark'
 }
 
@@ -32,10 +34,12 @@ export default function ControlsPanel({
   onReset,
   nodes,
   edges,
+  dfsStartNode,
+  onDfsStartNodeChange,
   theme,
 }: ControlsPanelProps) {
   const topologicalStepCount = nodes.length > 0 ? topologicalSortStepsDetailed(nodes, edges).length : 0
-  const dfsStepCount = nodes.length > 0 ? dfsStepsDetailed(nodes, edges).length : 0
+  const dfsStepCount = nodes.length > 0 ? dfsStepsDetailed(nodes, edges, dfsStartNode).length : 0
   const maxSteps = mode === 'topological' 
     ? topologicalStepCount 
     : dfsStepCount
@@ -80,6 +84,31 @@ export default function ControlsPanel({
           </button>
         </div>
       </div>
+
+      {/* DFS Start Node Selection - Only show when DFS mode is selected */}
+      {mode === 'dfs' && nodes.length > 0 && (
+        <div className="mb-6">
+          <label className="block text-sm font-semibold mb-3 text-slate-200">
+            Start Node:
+          </label>
+          <select
+            value={dfsStartNode || nodes[0]?.id || ''}
+            onChange={(e) => {
+              if (onDfsStartNodeChange) {
+                onDfsStartNodeChange(e.target.value)
+              }
+            }}
+            className="w-full px-4 py-2.5 rounded-xl bg-slate-800/60 border border-slate-700/50 text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 hover:bg-slate-700/60 cursor-pointer"
+            disabled={nodes.length === 0}
+          >
+            {nodes.map((node) => (
+              <option key={node.id} value={node.id} className="bg-slate-800 text-slate-200">
+                {node.data.label || node.id}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Controls */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -139,12 +168,14 @@ export default function ControlsPanel({
           <span className="font-semibold text-slate-200">Progress:</span>
           <span className="text-slate-300">{currentStep} / {maxSteps}</span>
         </div>
-        <div className="w-full bg-slate-700/50 rounded-full h-3 overflow-hidden shadow-inner">
+        <div className="w-full bg-slate-700/50 rounded-full h-4 overflow-hidden shadow-inner border border-slate-600/30">
           <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${(currentStep / maxSteps) * 100}%` }}
-            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-            className="bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 h-3 rounded-full shadow-glow"
+            initial={false}
+            animate={{ 
+              width: maxSteps > 0 ? `${(currentStep / maxSteps) * 100}%` : '0%'
+            }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 h-4 rounded-full shadow-glow"
           />
         </div>
       </div>
